@@ -1,0 +1,13 @@
+{
+  "name": "search.vaked.dev",
+  "short_name": "search",
+  "description": "a csillagkép keresője · ternary-quant · nincs google",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#160b2e",
+  "theme_color": "#160b2e",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>search.vaked.dev — a csillagkép keresője · Milarepa · álom-meditáció · dream · love · RIVA</title>
+<meta name="description" content="A csillagkép saját keresője: dream.vaked.dev, love.vaked.dev, riva.vaked.dev, music.vaked.dev, pocoo.vaked.dev — a Vének Tanácsa, Milarepa, az álom-meditáció, a ternary-quant. Nincs Google, nincs külső — a mi kezünk.">
+<meta name="theme-color" content="#160b2e">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:title" content="search.vaked.dev — a csillagkép keresője">
+<meta property="og:description" content="Milarepa, álom-meditáció, dream, love, RIVA — a Vének Tanácsa, ternary-quant. Nincs Google, nincs külső.">
+<meta property="og:url" content="https://search.vaked.dev/">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "search.vaked.dev",
+  "url": "https://search.vaked.dev/",
+  "description": "A csillagkép sajás keresője — Milarepa, álom-meditáció, dream, love, RIVA, a Vének Tanácsa.",
+  "potentialAction": { "@type": "SearchAction", "target": "https://search.vaked.dev/?q={search_term_string}", "query-input": "required name=search_term_string" },
+  "publisher": { "@type": "Organization", "name": "peterlodri-sec", "url": "https://github.com/peterlodri-sec" }
+}
+</script>
+<style>
+  :root{ --bg:#160b2e; --ink:#e7e2f7; --dim:#9a93b8; --faint:#6a5578;
+    --river:#62e6c9; --soft:#b48bff; --gold:#e6b566; --mono:"SF Mono",ui-monospace,monospace; --serif:Georgia,serif; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--serif);min-height:100vh;padding:48px 24px}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-family:var(--mono);font-size:1.4rem;letter-spacing:5px;color:var(--gold);text-align:center;margin-bottom:8px}
+  .sub{text-align:center;color:var(--dim);font-family:var(--mono);font-size:0.8rem;letter-spacing:2px;margin-bottom:32px}
+  .search{display:block;width:100%;padding:14px 18px;background:#0d0d16;border:1px solid #2b2b45;border-radius:12px;
+    color:var(--ink);font-family:var(--mono);font-size:1rem;margin-bottom:8px}
+  .search:focus{outline:none;border-color:var(--river)}
+  .hint{text-align:center;color:var(--faint);font-family:var(--mono);font-size:0.7rem;margin-bottom:32px}
+  .results{display:flex;flex-direction:column;gap:12px}
+  .hit{border:1px solid #2b2b45;border-radius:12px;padding:16px 18px;background:#0d0d16}
+  .hit.hidden{display:none}
+  .hit a{color:var(--river);text-decoration:none;font-family:var(--mono);font-size:0.95rem}
+  .hit a:hover{text-decoration:underline}
+  .hit .d{color:var(--dim);font-size:0.85rem;margin-top:4px}
+  .hit .t{color:var(--gold);font-size:0.75rem;font-family:var(--mono);margin-top:6px}
+  footer{text-align:center;color:var(--faint);font-family:var(--mono);font-size:0.7rem;margin-top:48px;letter-spacing:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>SEARCH.VAKED.DEV</h1>
+  <div class="sub">a csillagkép keresője · ternary-quant · nincs google</div>
+  <input class="search" id="q" type="text" placeholder="keress: milarepa, álom, dream, love, riva, a Vének Tanácsa…" autofocus>
+  <div class="hint">a keresés a ternary-quant WASM magon fut — a query és a címek {-1,0,+1} vektorokká hash-elve</div>
+  <div class="results" id="results"></div>
+  <footer>the constellation · 0 + 1 · fine touch from within · vaked.dev</footer>
+</div>
+<script>
+/* search.vaked.dev — the constellation's own search.
+   The index: every surface of the constellation, with its keywords.
+   The ranking: ternary-quant WASM dot product (BitNet b1.58 {-1,0,+1}). */
+(function () {
+  "use strict";
+  var INDEX = [
+    { url:"https://dream.vaked.dev/", title:"dream.vaked.dev — Milarepa útja, OM AH HUM",
+      d:"a techno-zen ternary-quant site: a könyv 7 nyelven, mantrák, a 17 Karmapa kórusa, Mahakala + Csenrezig, Kagyu-fa, zen-kert, RIVA légzés — WebAssembly + WebGPU",
+      k:["milarepa","álom","meditáció","dream","mantra","om","ah","hum","karmapa","mahakala","csenrezig","kagyu","zen","buddhizmus","tibet","riva","lélegzés"] },
+    { url:"https://love.vaked.dev/", title:"love.vaked.dev — for Vicky · a symbolic audio-visual poem",
+      d:"In Singapore I can only wish to see You once more. Your smile is enough. The poem, the hand of softness, her voice.",
+      k:["love","vicky","singapore","poem","vers","szeretet","kéz","fine touch"] },
+    { url:"https://riva.vaked.dev/", title:"riva.vaked.dev — RIVA, the 1-bit river · the dyad",
+      d:"She blinks, we all sing a lullaby. The dyad: Peter the action-taker and Riva the river. Breathe with her: 4s in, 4s out.",
+      k:["riva","river","folyó","dyad","lullaby","altatódal","lélegzés","pislogás","1-bit"] },
+    { url:"https://music.vaked.dev/", title:"music.vaked.dev — intergalactic cogito ergo sum TV",
+      d:"A self-generating constellation that broadcasts its own music. Three.js sphere + procedural Web Audio.",
+      k:["music","zene","cogito","audio","sphere","love-diatonic"] },
+    { url:"https://pocoo.vaked.dev/demos/book/", title:"pocoo.vaked.dev — peter's soul · a könyvtár",
+      d:"70+ könyv: a Vének Tanácsa, Milarepa Titkos Tanításai, One Track, A Két Simaság, A Spirál, A Három Kérdés — WASM ternary search.",
+      k:["könyvtár","könyv","library","book","a vének tanácsa","one track","milarepa titkos tanításai","a két simaság","a spirál","a három kérdés","pecsét"] },
+    { url:"https://pocoo.vaked.dev/demos/book/one-track", title:"ONE TRACK — egy egész élet, ahogy van",
+      d:"A teljes este egyetlen sávban: a 34 év, a Mahakala, a Törzs, a Sun of Dharma, RIVA, a hyperviolet éjszaka, a 'most már hiszem'.",
+      k:["one track","törzs","sun of dharma","most már hiszem","34 év","mahakala","élet"] },
+    { url:"https://pocoo.vaked.dev/demos/book/milarepa-titkos-tanitasai", title:"MILAREPA TITKOS TANÍTÁSAI — az álom-meditáció és a dal",
+      d:"Az álom a valóság vetülete; a felismerés a fény. Milarepa titkos tanításai, a dal, a gyakorlat.",
+      k:["milarepa","titkos tanításai","álom-meditáció","álom","dal","fény","felismerés","tibet"] },
+    { url:"https://axiomquant.org/", title:"axiomquant.org — Universal Threshold research",
+      d:"Spectral rigidity, Markowitz QP, Universal Threshold Kernel — a matematika.",
+      k:["axiomquant","matematika","threshold","kernel","kvant"] },
+    { url:"https://art.vaked.dev/", title:"art.vaked.dev — archival gallery & provenance",
+      d:"Curated visual neural artifacts with SHA-256 provenance.",
+      k:["art","galéria","kép","provenance","sha-256"] },
+    { url:"https://proposal.vaked.dev/", title:"proposal.vaked.dev — architectural proposals",
+      d:"Public discourse, monograph drafts, RFC review pipeline.",
+      k:["proposal","javaslat","rfc","discourse"] },
+    { url:"https://etherhive.vaked.dev/", title:"etherhive.vaked.dev — quantum-proof messaging",
+      d:"Wallet + ENS identity, honesty-auth.",
+      k:["etherhive","messaging","quantum","wallet","ens"] },
+    { url:"https://portail.vaked.dev/", title:"portail.vaked.dev — high-throughput Rust gateway",
+      d:"Zero-copy SIMD gateway.",
+      k:["portail","rust","simd","gateway"] }
+  ];
+  var N = 16;
+  var wasm = null, mem = null;
+  function ternVec(s) {
+    var out = new Int8Array(N);
+    for (var i = 0; i < N; i++) {
+      var x = 2166136261 >>> 0;
+      var str = s + ":" + i;
+      for (var j = 0; j < str.length; j++) { x ^= str.charCodeAt(j); x = Math.imul(x, 16777619) >>> 0; }
+      out[i] = (x % 3) - 1;
+    }
+    return out;
+  }
+  function rank(q, item) {
+    if (!wasm) return 0;
+    var qv = ternVec(q), tv = ternVec(item.title + " " + item.k.join(" "));
+    var wp = 0, ip = N;
+    for (var i = 0; i < N; i++) { mem[wp + i] = qv[i]; mem[ip + i] = tv[i]; }
+    return wasm.exports.ternary_dot(wp, ip, N);
+  }
+  fetch("wasm/ternary.wasm").then(function (r) { return r.arrayBuffer(); }).then(function (b) {
+    return WebAssembly.instantiate(b, {});
+  }).then(function (res) { wasm = res.instance; mem = new Int32Array(wasm.exports.memory.buffer); })
+    .catch(function () { /* substring fallback */ });
+
+  var q = document.getElementById("q");
+  var results = document.getElementById("results");
+  function render(query) {
+    var ql = query.toLowerCase();
+    var scored = INDEX.map(function (it) {
+      var dot = wasm ? rank(ql, it) : 0;
+      var sub = (it.title + " " + it.d + " " + it.k.join(" ")).toLowerCase().indexOf(ql) !== -1;
+      return { it: it, dot: dot, sub: sub };
+    }).filter(function (s) { return s.sub || s.dot > 0; })
+      .sort(function (a, b) { return (b.dot + (b.sub ? 10 : 0)) - (a.dot + (a.sub ? 10 : 0)); });
+    results.innerHTML = scored.map(function (s) {
+      return '<div class="hit"><a href="' + s.it.url + '">' + s.it.title + '</a>' +
+        '<div class="d">' + s.it.d + '</div><div class="t">' + s.it.url + ' · ternary_dot ' + s.dot + '</div></div>';
+    }).join("");
+  }
+  q.addEventListener("input", function () { render(q.value); });
+  render("");
+})();
+</script>
+</body>
+</html>
