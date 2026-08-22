@@ -11,7 +11,7 @@ jobs:
       - name: assemble
         run: |
           rm -rf _site && mkdir -p _site
-          cp -r index.html favicon.svg robots.txt site.webmanifest _headers wasm _site/
+          cp -r index.html favicon.svg robots.txt site.webmanifest _headers wasm llms.txt _site/
           cp -r icon-192.png icon-512.png apple-touch-icon.png og-image.png og-image.svg _site/ 2>/dev/null || true
       - name: deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3

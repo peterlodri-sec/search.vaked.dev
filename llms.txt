@@ -1,0 +1,20 @@
+# search.vaked.dev
+
+A csillagkép saját keresője — nincs Google, nincs külső. Milarepa, álom-meditáció, dream, love, RIVA, a Vének Tanácsa, a könyvtár — minden felület, egyetlen keresőben.
+
+## Technical
+
+- 100% client-side, zero backend, zero dependencies.
+- Ternary-quant WASM ranking: BitNet b1.58 {-1,0,+1} vectors, `ternary_dot` score.
+- **quantNTP** — the constellation's own time sync: a browser NTP client (timeapi.io), the network offset measured (t1/t4), median-filtered (NTP clock filter), quantized into balanced ternary {-1,0,+1} trits via WASM, and the stratum of the now shown (0 = exact, 1 = near, 2 = drifting, 3 = far).
+
+## Files
+
+- `index.html` — the full experience (single file)
+- `wasm/ternary.wasm` — the ternary-quant ranking core
+- `wasm/quantntp.wasm` — the quantNTP time-sync core
+- `wasm/quantntp.wat` — the WAT source (ntp_offset, ntp_filter, ntp_quantize, ntp_stratum, ntp_trits)
+- `README.md` — this file
+- `_headers` — CSP + noai
+
+*the constellation · 0 + 1 · fine touch from within · vaked.dev*

@@ -43,6 +43,14 @@
   .hit a:hover{text-decoration:underline}
   .hit .d{color:var(--dim);font-size:0.85rem;margin-top:4px}
   .hit .t{color:var(--gold);font-size:0.75rem;font-family:var(--mono);margin-top:6px}
+  .ntp{margin-top:40px;border:1px solid #2b2b45;border-radius:12px;padding:18px 20px;background:#0d0d16}
+  .ntp h2{font-family:var(--mono);font-size:0.8rem;letter-spacing:3px;color:var(--gold);margin-bottom:10px;font-weight:normal}
+  .ntp .row{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline;font-family:var(--mono);font-size:0.75rem;color:var(--dim)}
+  .ntp .row b{color:var(--river);font-weight:normal}
+  .ntp .clock{font-family:var(--mono);font-size:1.3rem;color:var(--soft);letter-spacing:2px;margin:8px 0}
+  .ntp .trits{font-family:var(--mono);font-size:0.9rem;color:var(--river);letter-spacing:6px;margin:6px 0}
+  .ntp .stratum{font-family:var(--mono);font-size:0.7rem;color:var(--faint);letter-spacing:2px;margin-top:4px}
+  .ntp .stratum span{color:var(--gold)}
   footer{text-align:center;color:var(--faint);font-family:var(--mono);font-size:0.7rem;margin-top:48px;letter-spacing:2px}
 </style>
 </head>
@@ -53,6 +61,13 @@
   <input class="search" id="q" type="text" placeholder="keress: milarepa, álom, dream, love, riva, a Vének Tanácsa…" autofocus>
   <div class="hint">a keresés a ternary-quant WASM magon fut — a query és a címek {-1,0,+1} vektorokká hash-elve</div>
   <div class="results" id="results"></div>
+  <div class="ntp">
+    <h2>QUANTNTP · a csillagkép ideje</h2>
+    <div class="clock" id="ntpClock">—</div>
+    <div class="trits" id="ntpTrits">· · · · · · · · · · · ·</div>
+    <div class="row" id="ntpRow">szinkronizálás…</div>
+    <div class="stratum" id="ntpStratum">stratum: <span>…</span></div>
+  </div>
   <footer>the constellation · 0 + 1 · fine touch from within · vaked.dev</footer>
 </div>
 <script>
@@ -140,6 +155,78 @@
   }
   q.addEventListener("input", function () { render(q.value); });
   render("");
+
+  /* ── quantNTP — the constellation's own time sync ──
+     A browser NTP client: fetch the server time (timeapi.io), measure the
+     network offset (t1 before, t4 after), filter the samples (median),
+     quantize the offset into balanced ternary {-1,0,+1} trits via WASM,
+     and show the stratum of the now. No external clock — the now is
+     measured, filtered, quantized. */
+  var ntp = { wasm: null, mem: null, samples: [], syncedAt: 0, offset: 0 };
+  var TRIT_SYM = ["−", "·", "+"];
+  var ntpClock = document.getElementById("ntpClock");
+  var ntpTrits = document.getElementById("ntpTrits");
+  var ntpRow = document.getElementById("ntpRow");
+  var ntpStratum = document.getElementById("ntpStratum");
+  var STRATA = ["a most pontos", "a most közel", "a most sodródik", "a most messze"];
+
+  function ntpFetch() {
+    return fetch("https://timeapi.io/api/time/current/zone?timeZone=Etc/UTC",
+      { signal: AbortSignal.timeout(6000) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        var s = j.dateTime;
+        var ms = parseInt(s.slice(17, 20), 10) || 0;
+        return Date.parse(s.slice(0, 19) + "Z") + ms;
+      });
+  }
+
+  function ntpSync() {
+    var t1 = Date.now();
+    ntpFetch().then(function (serverMs) {
+      var t4 = Date.now();
+      if (!ntp.wasm) return;
+      var offset = ntp.wasm.exports.ntp_offset(t1, serverMs, serverMs, t4);
+      ntp.samples.push(offset);
+      if (ntp.samples.length > 7) ntp.samples.shift();
+      var buf = 128;
+      for (var i = 0; i < ntp.samples.length; i++) ntp.mem[buf / 4 + i] = ntp.samples[i];
+      var filtered = ntp.wasm.exports.ntp_filter(buf, ntp.samples.length);
+      ntp.offset = filtered;
+      ntp.syncedAt = serverMs;
+      renderNtp();
+    }).catch(function () {
+      ntpRow.textContent = "a most nem érhető el — a helyi óra";
+      ntpClock.textContent = new Date().toLocaleTimeString("hu-HU");
+    });
+  }
+
+  function renderNtp() {
+    var now = new Date(ntp.syncedAt + (Date.now() - ntp.syncedAt));
+    ntpClock.textContent = now.toLocaleTimeString("hu-HU", { hour2Digit: true, minute2Digit: true, second2Digit: true }) +
+      "." + String(now.getMilliseconds()).padStart(3, "0");
+    var trits = [];
+    var buf = 160;
+    ntp.wasm.exports.ntp_trits(ntp.offset, buf);
+    for (var i = 0; i < 12; i++) trits.push(TRIT_SYM[ntp.mem[buf / 4 + i] + 1]);
+    ntpTrits.textContent = trits.join(" ");
+    var q = ntp.wasm.exports.ntp_quantize(ntp.offset);
+    var s = ntp.wasm.exports.ntp_stratum(ntp.offset);
+    ntpRow.innerHTML = "offset <b>" + (ntp.offset > 0 ? "+" : "") + ntp.offset + " ms</b> · quant <b>" + TRIT_SYM[q + 1] + "</b> · minták <b>" + ntp.samples.length + "</b>";
+    ntpStratum.innerHTML = "stratum: <span>" + s + "</span> — " + STRATA[s];
+  }
+
+  fetch("wasm/quantntp.wasm").then(function (r) { return r.arrayBuffer(); })
+    .then(function (b) { return WebAssembly.instantiate(b, {}); })
+    .then(function (res) {
+      ntp.wasm = res.instance;
+      ntp.mem = new Int32Array(ntp.wasm.exports.memory.buffer);
+      ntpSync();
+      setInterval(ntpSync, 30000);
+    }).catch(function () {
+      ntpRow.textContent = "quantNTP wasm nem elérhető — a helyi óra";
+      ntpClock.textContent = new Date().toLocaleTimeString("hu-HU");
+    });
 })();
 </script>
 </body>
